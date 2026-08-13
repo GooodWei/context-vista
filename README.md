@@ -20,29 +20,26 @@
 
 ## 安装
 
-先确保装了 pnpm（`dsh plugin` 内部会调用 pnpm）。
+先装 pnpm（一个 JavaScript 包管理器，类似 npm/yarn）。`dsh plugin add` 内部会自动调用 pnpm，所以命令**不要**写成 `pnpm dsh plugin ...`。没有 pnpm 可运行 `npm install -g pnpm` 安装。
+
+> 下面命令都写全 `npx @deepseek-ai/dsh ...`（无需全局安装，开箱即用）。如果你已全局安装（`npm install -g @deepseek-ai/dsh`），可把 `npx @deepseek-ai/dsh` 简写成 `dsh`。
 
 ### 从 GitHub 安装（推荐）
 
-直接复制这条命令执行：
+直接复制这两条命令执行：
 
 ```sh
-dsh plugin --profile web add github:GooodWei/dsh-command-context
+npx @deepseek-ai/dsh plugin --profile web add github:GooodWei/dsh-command-context
+npx @deepseek-ai/dsh web
 ```
 
-装完重启即可：
-
-```sh
-dsh web
-```
-
-> 若 pnpm 报错说拦截了 `prepare` 脚本，按提示把那个 key 加到 profile 目录 `pnpm-workspace.yaml` 的 `allowBuilds` 里，再重跑上面这条 `add` 命令。
+> 若 pnpm 报错说拦截了 `prepare` 脚本，按提示把那个 key 加到 profile 目录 `pnpm-workspace.yaml` 的 `allowBuilds` 里，再重跑 `add` 命令。
 
 ### 从本地目录安装（开发用）
 
 ```sh
-dsh plugin --profile web add file:../dsh-command-context
-dsh web
+npx @deepseek-ai/dsh plugin --profile web add file:../dsh-command-context
+npx @deepseek-ai/dsh web
 ```
 
 `file:` 后面是插件源码目录的相对路径（相对于你执行命令时所在的目录）。
