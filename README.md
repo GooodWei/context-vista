@@ -1,5 +1,7 @@
 # dsh-command-context
 
+![dsh-command-context 演示](./pic.png "输入 /context 后的效果")
+
 为 [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) 提供 `/context` 斜杠命令，用**环形图**展示当前上下文 token 用量与分配，对标 Claude Code 的 `/context`。
 
 - **Host 半部**：注册 `/context` 命令，返回文本摘要（headless / 非 Web 界面可用）。
