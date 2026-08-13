@@ -1,11 +1,13 @@
 <div align="center">
 
-<img src="pic.png" alt="COLLEAGUE.SKILL — Distill how they think." width="100%">
+<img src="pic.png" alt="context-vista — /context 环形图" width="100%">
 
 <br>
 </div>
 
-# dsh-command-context
+# context-vista
+
+> 一眼看清你的上下文窗口 —— token 用量、压缩收益、成本估算，尽收眼底。
 
 为 [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) 提供 `/context` 斜杠命令，用**环形图**展示当前上下文 token 用量与分配，对标 Claude Code 的 `/context`。
 
@@ -15,6 +17,7 @@
   - **压缩效果环形图**：执行过 `/compact` 后，显示最近一次压缩释放了多少、保留了多少。
   - **占用进度条**：预计下一次请求占用 vs 上下文窗口，带百分比。
   - **会话累计 + 估算费用**：输入 / 输出 / 缓存读 / 缓存写，以及按 DeepSeek 官方定价估算的费用。
+  - **常驻右侧悬浮卡**：对话区右侧空白处常驻一张迷你环形图（占用率 + 估算费用），**实时更新**、无需输入 `/context`；按住标题栏可上下拖动并记住位置，点右上角箭头可收起/展开。
 
 > 环形图是**手写的 SVG**，不依赖任何第三方图表库。
 
@@ -29,7 +32,7 @@
 直接复制这两条命令执行：
 
 ```sh
-npx @deepseek-ai/dsh plugin --profile web add github:GooodWei/dsh-command-context
+npx @deepseek-ai/dsh plugin --profile web add github:GooodWei/context-vista
 npx @deepseek-ai/dsh web
 ```
 
@@ -38,7 +41,7 @@ npx @deepseek-ai/dsh web
 ### 从本地目录安装（开发用）
 
 ```sh
-npx @deepseek-ai/dsh plugin --profile web add file:../dsh-command-context
+npx @deepseek-ai/dsh plugin --profile web add file:../context-vista
 npx @deepseek-ai/dsh web
 ```
 
@@ -47,6 +50,8 @@ npx @deepseek-ai/dsh web
 ## 使用
 
 装好后在输入框输入 `/context` 回车即可。
+
+另外，插件会自动在**对话区右侧**常驻一张迷你环形图（悬浮卡），实时显示当前上下文占用率与估算费用，无需任何操作；**按住标题栏可上下拖动**，拖到的位置会自动记住（存在浏览器 localStorage，刷新后依然生效）；点它右上角的 `▸` 可收起为一行标题，再点 `◂` 展开。
 
 ## 数据来源与语义
 
@@ -80,12 +85,12 @@ npx @deepseek-ai/dsh web
 
 #### 自定义定价
 
-编辑 `~/.dsh/settings.yaml`，在 `dsh-command-context` 命名空间下覆盖或新增定价（**热加载，无需重启**）。
+编辑 `~/.dsh/settings.yaml`，在 `context-vista` 命名空间下覆盖或新增定价（**热加载，无需重启**）。
 
 **最简示例**（复制追加到 `~/.dsh/settings.yaml` 末尾即可）：
 
 ```yaml
-dsh-command-context:
+context-vista:
   pricing:
     "https://api.deepseek.com":
       deepseek-v4-pro:
@@ -98,7 +103,7 @@ dsh-command-context:
 **完整示例**（含时区、峰谷时段、自定义 endpoint、通配符兜底）：
 
 ```yaml
-dsh-command-context:
+context-vista:
   timezone: 8                        # 峰谷时段所在时区（相对 UTC 的小时偏移），默认 8 = 北京时间
   peakWindows:                       # 高峰窗口，HH:MM，含起点不含终点；start > end 表示跨午夜
     - start: "09:00"
