@@ -80,7 +80,22 @@ npx @deepseek-ai/dsh web
 
 #### 自定义定价
 
-编辑 `~/.dsh/settings.yaml`，在 `dsh-command-context` 命名空间下覆盖或新增定价（**热加载，无需重启**）：
+编辑 `~/.dsh/settings.yaml`，在 `dsh-command-context` 命名空间下覆盖或新增定价（**热加载，无需重启**）。
+
+**最简示例**（复制追加到 `~/.dsh/settings.yaml` 末尾即可）：
+
+```yaml
+dsh-command-context:
+  pricing:
+    "https://api.deepseek.com":
+      deepseek-v4-pro:
+        peak:    { hit: 0.3, miss: 9, output: 27 }
+        offpeak: { hit: 0.15, miss: 4.5, output: 13.5 }
+```
+
+> 上面只覆盖 `deepseek-v4-pro` 的价格，其余模型仍用内置官价。
+
+**完整示例**（含时区、峰谷时段、自定义 endpoint、通配符兜底）：
 
 ```yaml
 dsh-command-context:
