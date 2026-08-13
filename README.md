@@ -20,20 +20,32 @@
 
 ## 安装
 
-需要 pnpm（`dsh plugin` 会把参数转发给 profile 目录里的 pnpm）。
+先确保装了 pnpm（`dsh plugin` 内部会调用 pnpm）。
+
+### 从 GitHub 安装（推荐）
+
+直接复制这条命令执行：
 
 ```sh
-# 从本地目录
-dsh plugin --profile web add file:../dsh-command-context
+dsh plugin --profile web add github:GooodWei/dsh-command-context
+```
 
-# 或从 Git 仓库
-dsh plugin --profile web add github:<owner>/dsh-command-context
+装完重启即可：
 
-# 重启
+```sh
 dsh web
 ```
 
-> 从 Git 安装若失败（pnpm 拦截 `prepare` 脚本），把 pnpm 提示的 key 加到 profile 目录 `pnpm-workspace.yaml` 的 `allowBuilds` 里再重试。
+> 若 pnpm 报错说拦截了 `prepare` 脚本，按提示把那个 key 加到 profile 目录 `pnpm-workspace.yaml` 的 `allowBuilds` 里，再重跑上面这条 `add` 命令。
+
+### 从本地目录安装（开发用）
+
+```sh
+dsh plugin --profile web add file:../dsh-command-context
+dsh web
+```
+
+`file:` 后面是插件源码目录的相对路径（相对于你执行命令时所在的目录）。
 
 ## 使用
 
@@ -48,7 +60,7 @@ dsh web
 | 组成环形图 | `contextBreakdown` | 系统 / 工具 / 消息，固定启发式（4 字符 ≈ 1 token）的**估算值** |
 | 占用进度条 | `contextPressure` | `projectedTokens` ÷ `contextWindow` |
 | 会话累计 | `tokenUsage` | provider **精确**累计：输入 / 输出 / 缓存读 / 缓存写 |
-| 估算费用 | 同上 + 当前模型 | 上述 bucket × DeepSeek 官方单价（¥/百万 tokens），**估算** |
+| 估算费用 | 同上 + 当前路由/模型 | 上述 bucket × 单价（内置官方价或用户自定义，¥/百万 tokens），**估算** |
 
 这些是 DSH 默认 profile 已挂载的能力（`dsh-token-meter` + `dsh-session-projection`），本插件无需自建 Host RPC。
 
@@ -59,15 +71,49 @@ dsh web
 
 ### 费用估算
 
-费用 = `uncachedInputTokens×miss + (cacheReadTokens+cacheWriteTokens)×hit + outputTokens×output`，÷ 1,000,000，再乘时段系数。
+费用 = `uncachedInputTokens×miss + (cacheReadTokens+cacheWriteTokens)×hit + outputTokens×output`，÷ 1,000,000。当前时段（高峰/空闲）决定取哪套单价。
 
-- 单价（高峰价，¥/百万 tokens）定义在 `PRICING` 常量里：
-  - `deepseek-v4-flash`：缓存命中 0.1 / 未命中 3 / 输出 9
-  - `deepseek-v4-pro`：缓存命中 0.3 / 未命中 9 / 输出 27
+- 内置官方定价（¥/百万 tokens，键 = provider 路由名 → 模型名）：
+  - `deepseek-official` / `deepseek-v4-pro`：高峰 命中 0.3 / 未命中 9 / 输出 27；空闲半价 0.15 / 4.5 / 13.5
+  - `deepseek-official` / `deepseek-v4-flash`：高峰 命中 0.1 / 未命中 3 / 输出 9；空闲半价 0.05 / 1.5 / 4.5
   - 未匹配到的模型按 pro 档计。
-- **峰谷时段（北京时间）**：高峰 9:00–12:00、14:00–18:00（全价）；其余空闲（半价 ×0.5）。
+- **峰谷时段**：默认北京时间（UTC+8）高峰 9:00–12:00、14:00–18:00，其余空闲；时区与窗口均可自定义（见下）。
 - 因 `tokenUsage` 是累计值、无逐请求时间戳，按**当前时刻**的费率估算整段会话；跨峰谷的会话为近似值。
 - 金额仅为**估算**，不是账单。
+
+#### 自定义定价
+
+编辑 `~/.dsh/settings.yaml`，在 `dsh-command-context` 命名空间下覆盖或新增定价（**热加载，无需重启**）：
+
+```yaml
+dsh-command-context:
+  timezone: 8                        # 峰谷时段所在时区（相对 UTC 的小时偏移），默认 8 = 北京时间
+  peakWindows:                       # 高峰窗口，HH:MM，含起点不含终点；start > end 表示跨午夜
+    - start: "09:00"
+      end: "12:00"
+    - start: "14:00"
+      end: "18:00"
+  pricing:                           # 键 = 路由名 或 baseURL → 模型名 → 价格；支持 * 通配符
+    "https://api.deepseek.com":      # 按字面 baseURL 键（覆盖内置路由的某模型，其余保持不变）
+      deepseek-v4-pro:
+        peak:    { hit: 0.3, miss: 9, output: 27 }
+        offpeak: { hit: 0.15, miss: 4.5, output: 13.5 }
+    "https://my-gateway.example.com/v1":  # 自定义 endpoint，按 baseURL 键
+      my-model:
+        peak:    { hit: 1, miss: 5, output: 20 }
+        offpeak: { hit: 0.5, miss: 2.5, output: 10 }
+    "*":                              # 兜底：所有路由下未单独列出的模型
+      "*": { hit: 0.3, miss: 9, output: 27 }
+```
+
+- **定价键两种写法均可**：
+  - **provider 路由名**（Models 设置里的「API 路由」，内置 DeepSeek 为 `deepseek-official`）；
+  - **字面 baseURL**（如 `https://api.deepseek.com`），插件会从 LLM 适配器的可配置 provider 解析出 `provider → baseURL` 映射来命中。
+  - 含 `:` 的键（baseURL）在 YAML 里**必须加引号**，否则会被当成注释/冒号语法。
+- 价格条目两种写法：**平坦** `{ hit, miss, output }`（不分峰谷），或 **峰谷** `{ peak, offpeak }`（各自 `{hit, miss, output}`，可只给其中一个）。
+- 命中顺序：`baseURL.model` → `baseURL.*` → `provider.model` → `provider.*` → `*.model` → `*.*` → 内置默认（模型名含 `flash` 按 flash，否则 pro）。
+- 若某 provider 的 baseURL 无法解析（非可配置 provider、或 settings 里没有 baseURL），按 baseURL 写的键会回退到 provider 路由名匹配。
+- headless 命令即时生效；Web 卡片在下次会话事件（如再发一条消息、再执行一次 `/context`）后刷新。
 
 ## License
 
