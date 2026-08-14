@@ -9,6 +9,8 @@
 
 # context-vista
 
+[![Awesome DSH Plugin](https://awesome-dsh-plugin.com/badge.svg)](https://awesome-dsh-plugin.com)
+
 > See your context window at a glance — token usage, compaction savings, and cost estimates, all in one view.
 
 A `/context` slash command for [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) that shows the current context token usage and allocation as a **donut chart**. A mini floating card also stays on the right side of the conversation area, showing occupancy and estimated cost live — draggable and collapsible.

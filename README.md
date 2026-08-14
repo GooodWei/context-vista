@@ -9,6 +9,8 @@
 
 # context-vista
 
+[![Awesome DSH Plugin](https://awesome-dsh-plugin.com/badge.svg)](https://awesome-dsh-plugin.com)
+
 > 一眼看清你的上下文窗口 —— token 用量、压缩收益、成本估算，尽收眼底。
 
 为 [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) 提供 `/context` 斜杠命令，用**环形图**实时展示当前上下文 token 用量与分配。对话区右侧还常驻一张迷你悬浮卡，实时显示占用率与估算费用，可拖动、可收起。
