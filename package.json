@@ -3,18 +3,27 @@
   "description": "A live context-window donut for DeepSeek Harness: token usage, compaction savings, and cost at a glance",
   "version": "0.1.0",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/GooodWei/context-vista"
+  },
   "type": "module",
   "main": "lib/index.js",
   "exports": {
     ".": "./lib/index.js",
     "./client": "./lib/client.js",
+    "./cordis.patch.yml": "./cordis.patch.yml",
     "./package.json": "./package.json"
   },
   "files": [
     "lib/index.js",
-    "lib/client.js"
+    "lib/client.js",
+    "cordis.patch.yml"
   ],
   "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
     "client": {
       "inject": [
         "@deepseek-ai/dsh-client-runtime",

@@ -1,0 +1,6 @@
+# context-vista bundle patch: mounts the `/context` slash command (host half).
+# The web UI half (the donut card + right-side HUD) is declared separately via
+# the `dsh.client` manifest in package.json and loaded by the client runtime.
+- insert:
+    - id: context-vista
+      name: context-vista
