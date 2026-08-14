@@ -26,7 +26,7 @@ npx @deepseek-ai/dsh web
 
 Type `/context` and press Enter to see a card: a context composition donut (system / tools / messages / free), an occupancy bar, session totals, and an estimated cost.
 
-The mini donut card on the right updates live with no input; drag its title bar to move it vertically (position is remembered), and click the arrow to collapse/expand.
+The mini donut card on the right updates live with no input; drag its title bar to move it vertically (position is remembered), and click the arrow to collapse/expand. A "Compact context" button at the bottom of the card triggers `/compact` (same effect as typing the command); it shows "Compacting…" and disables while the compaction runs.
 
 ## Custom pricing
 
